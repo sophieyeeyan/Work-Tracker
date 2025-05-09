@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Don't Want to Work Tracker</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      font-size: 1.5em;
+      padding: 10px 20px;
+    }
+    #count {
+      font-size: 2em;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>I Don't Want to Work Tracker</h1>
+  <button onclick="incrementCount()">I don't want to work</button>
+  <div id="count">Count: 0</div>
+
+  <script>
+    let count = 0;
+
+    function incrementCount() {
+      count++;
+      document.getElementById('count').textContent = 'Count: ' + count;
+    }
+  </script>
+</body>
+</html>
