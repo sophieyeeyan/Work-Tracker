@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Main Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <h1 class="header-title">Corporate Slave Mental Health Tracker</h1>
+  </header>
+<audio id="quackAudio" src="audio/Quack Sound Effect.mp3" preload="auto"></audio>
+  
+  <div class="dashboard-container">
+    <h2 id="greeting">Hi!</h2>
+    <div class="calendar-section">
+      <p id="todayDate"></p>
+      <p id="daysUntilWeekend"></p>
+      <p id="daysUntilBankHoliday"></p>
+    </div>
+
+    
+<div class="download-container">
+  <button id="downloadLogBtn">
+    <img src="icons/file-arrow-down.svg" alt="Download" class="icon" />
+    Download Log Excel
+  </button>
+</div>
+
+<div class="mood-trackers">
+      <div class="mood-tracker dont-want-to-work" id="dontWantToWork">
+        <img src="images/Work.png" alt="Work" class="mood-image" />
+<button onclick="logMood('dontWantToWork')">Heck! I don’t want to work.</button>
+        
+        <p>This week’s log:</p>
+        
+        
+        <ul id="dontWantToWorkLog"></ul>
+      </div>
+      <div class="mood-tracker angry" id="angry">
+        <img src="images/Angry.png" alt="Angry" class="mood-image" />
+<button onclick="logMood('angry')">I am not paid enough to deal with this.</button>
+        
+        <p>This week’s log:</p>
+        
+        
+        <ul id="angryLog"></ul>
+      </div>
+      <div class="mood-tracker treat" id="treat">
+        <img src="images/Treat.png" alt="Treat" class="mood-image" />
+<button onclick="logMood('treat')">I deserve a treat!</button>
+        
+        <p>This week’s log:</p>
+        
+        
+        <ul id="treatLog"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const userName = localStorage.getItem('userName') || 'User';
+    document.getElementById('greeting').textContent = `Hi ${userName}!`;
+
+    const today = new Date();
+    document.getElementById('todayDate').innerHTML = `Today:<br><strong>${today.toDateString()}</strong>`;
+
+    const dayOfWeek = today.getDay();
+    const daysUntilWeekend = (6 - dayOfWeek) % 7;
+    document.getElementById('daysUntilWeekend').innerHTML = `Days until weekend:<br><strong>${daysUntilWeekend}</strong>`;
+
+    const bankHolidays = [
+      new Date('2025-05-26'),
+      new Date('2025-08-25'),
+      new Date('2025-12-25'),
+      new Date('2025-12-26')
+    ];
+    const daysUntilBankHoliday = bankHolidays
+      .map(date => Math.ceil((date - today) / (1000 * 60 * 60 * 24)))
+      .find(days => days >= 0);
+    document.getElementById('daysUntilBankHoliday').innerHTML = `Days until next bank holiday:<br><strong>${daysUntilBankHoliday}</strong>`;
+
+    function logMood(mood) {
+      document.getElementById('quackAudio').play();
+      const time = new Date().toLocaleTimeString();
+      const logItem = document.createElement('li');
+      const fullDate = new Date().toLocaleString();
+      logItem.textContent = fullDate;
+      document.getElementById(`${mood}Log`).appendChild(logItem);
+
+      const logKey = `${mood}Log_${today.toISOString().split('T')[0]}`;
+      const existingLog = JSON.parse(localStorage.getItem(logKey)) || [];
+      existingLog.push(time);
+      localStorage.setItem(logKey, JSON.stringify(existingLog));
+    }
+
+    ['dontWantToWork', 'angry', 'treat'].forEach(mood => {
+      const logKey = `${mood}Log_${today.toISOString().split('T')[0]}`;
+      const log = JSON.parse(localStorage.getItem(logKey)) || [];
+      const logList = document.getElementById(`${mood}Log`);
+      log.forEach(time => {
+        const logItem = document.createElement('li');
+      const fullDate = new Date().toLocaleString();
+      logItem.textContent = fullDate;
+        logList.appendChild(logItem);
+      });
+    });
+  
+    document.getElementById('downloadLogBtn').addEventListener('click', () => {
+      const today = new Date().toISOString().split('T')[0];
+      const moods = ['dontWantToWork', 'angry', 'treat'];
+      let csv = "Mood,Date,Time\n";
+      moods.forEach(mood => {
+        const logKey = `${mood}Log_${today}`;
+        const entries = JSON.parse(localStorage.getItem(logKey)) || [];
+        entries.forEach(time => {
+          csv += `${mood},${today},${time}\n`;
+        });
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Mood_Log_${today}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+    </script>
+</body>
+</html>
