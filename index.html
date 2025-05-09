@@ -2,35 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Don't Want to Work Tracker</title>
+  <title>I Don't Want to Work Tracker</title>
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
-      margin-top: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 50px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    #counter {
+      font-size: 48px;
+      margin: 10px 0;
     }
     button {
-      font-size: 1.5em;
+      font-size: 20px;
       padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff5c5c;
+      color: white;
+      cursor: pointer;
     }
-    #count {
-      font-size: 2em;
-      margin-top: 20px;
+    button:hover {
+      background-color: #e04848;
+    }
+    #log {
+      margin-top: 30px;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 300px;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .log-item {
+      font-size: 16px;
+      padding: 3px 0;
+      border-bottom: 1px solid #eee;
     }
   </style>
 </head>
 <body>
-  <h1>I Don't Want to Work Tracker</h1>
-  <button onclick="incrementCount()">I don't want to work</button>
-  <div id="count">Count: 0</div>
+  <h1>Times I Didn't Want to Work Today:</h1>
+  <div id="counter">0</div>
+  <button onclick="increment()">I Don't Want to Work</button>
+
+  <div id="log">
+    <strong>Today's log:</strong>
+    <div id="logItems"></div>
+  </div>
 
   <script>
-    let count = 0;
+    const counterEl = document.getElementById('counter');
+    const logItemsEl = document.getElementById('logItems');
 
-    function incrementCount() {
-      count++;
-      document.getElementById('count').textContent = 'Count: ' + count;
+    function getTodayKey() {
+      const today = new Date().toISOString().slice(0, 10); // "2025-05-09"
+      return `noWorkLog_${today}`;
     }
+
+    function loadLog() {
+      const key = getTodayKey();
+      const data = JSON.parse(localStorage.getItem(key)) || [];
+      return data;
+    }
+
+    function saveLog(log) {
+      const key = getTodayKey();
+      localStorage.setItem(key, JSON.stringify(log));
+    }
+
+    function renderLog(log) {
+      counterEl.textContent = log.length;
+      logItemsEl.innerHTML = "";
+      log.forEach(time => {
+        const div = document.createElement("div");
+        div.className = "log-item";
+        div.textContent = time;
+        logItemsEl.appendChild(div);
+      });
+    }
+
+    function increment() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      let log = loadLog();
+      log.push(timeStr);
+      saveLog(log);
+      renderLog(log);
+    }
+
+    // Initialize
+    renderLog(loadLog());
   </script>
 </body>
 </html>
